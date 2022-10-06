@@ -1,0 +1,16 @@
+---
+title: "Afeta o Grêmio?"
+author: "Renan Tomazini"
+date: "2022-10-06"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+# Mas como isso afeta o Grêmio?
+
+<img src="image/" alt="drawing" style="width:200px; display: block;margin-left: auto;margin-right: auto;">
+
+O Presente relatório busca responder uma pergunta que está sendo muito discutida na internet por pesquisadores do mundo inteiro, "Como isso afeta o Grêmio?"
+A pergunta surgiu em 2022, durante o Gre-Nal 435
