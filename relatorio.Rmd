@@ -4,13 +4,380 @@ author: "Renan Tomazini"
 date: "2022-10-06"
 output: html_document
 ---
-
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
 # Mas como isso afeta o Grêmio?
 
-<img src="image/" alt="drawing" style="width:200px; display: block;margin-left: auto;margin-right: auto;">
+## Introdução
+
+<img src="images\gremio-logo-escudo.png" alt="Escudo do Grêmio" style="width:200px; display: block;margin-left: auto;margin-right: auto;">
 
 O Presente relatório busca responder uma pergunta que está sendo muito discutida na internet por pesquisadores do mundo inteiro, "Como isso afeta o Grêmio?"
-A pergunta surgiu em 2022, durante o Gre-Nal 435
+A pergunta repercutiu em 2022, durante o Gre-Nal 435, quando o Internacional de Porto Alegre, o time Rival do Grêmio, declarou no Twitter: #INTxGRE | 2T | ⏱️ 50' - AFETOU O GRÊMIO! 🔥
+Segundo o GloboEsporte, a frase tem origem em um vídeo produzido por um torcedor gremista que explicaria a relação da morte do príncipe Phillip, marido da rainha Elizabeth II, do Reino Unido, em abril de 2021, com o clube. O vídeo se encontra disponível no link: https://www.youtube.com/watch?v=d45kkL0EwSs
+
+O meme se espalhou pela internet, chegando a ser usado por influencers em redes sociais e Streamings de Futebol na Twitch, ele tomou forma com o personagem Walter White de Breaking Bad, como na imagem abaixo:
+<img src="images\walter.jpg" alt="drawing" style="width:200px; display: block;margin-left: auto;margin-right: auto;">
+
+
+Desde então a pergunta que a internet faz é: Como isso afeta o Grêmio?
+Vou tentar ver algumas estatísticas do clube, como Ranking e Pontos na CBF e no Brasileirão e tentar encontrar algumas relações com acontecimentos importantes do nosso cotidiano. Então esse é o **Mas afeta o Grêmio?**
+
+## Pacotes Requeridos:
+
+```{r setup, include=FALSE}
+#install.packages('plotly')
+#install.packages('stringr')
+#install.packages('tidyr')
+library('plotly')
+library('stringr')
+library('tidyr')
+```
+Os pacotes a serem usados são:
+plotly
+Para criação de gráficos.
+
+stringr
+Para trabalhar com as strings presentes no dataset.
+
+tidyr
+Para auxiliar na limpeza e organização das tabelas de dados.
+
+## Análise {.tabset}
+
+### Dados do Grêmio
+Os primeiros dados referentes a Ranking CBF, Brasileirão e Títulos foram retirados da Wikipedia e revisados no Globoesporte referente a cada ano.
+Já o preço do time foi pego do site transfermarkt. e está em Euro. 
+
+```{r}
+dadosGremio <- read.csv("data/estGremio.csv")
+head(dadosGremio)
+# Onde x é o ano
+```
+Irei excluir 2010 e 2011 por não termos os rankings da CBF.
+```{r}
+dadosGremio <- dadosGremio[3:13, ]
+```
+
+#### Vamos criar alguns gráficos para ter uma noção de cada ano
+
+Pontos do Grêmio no Brasileirão
+```{r}
+fig <- plot_ly(dadosGremio, x = ~X, y = dadosGremio$PontosBr, name = 'trace 0', type = 'scatter', mode = 'lines') 
+
+fig <- fig %>% layout(title = "Pontos do Grêmio no Brasileirão",
+
+         xaxis = list(title = "Anos"),
+
+         yaxis = list (title = "Pontos"))
+fig
+```
+Pontos do Grêmio Normalizados no Brasileirão
+```{r}
+
+score_p = scale(dadosGremio$PontosBr, center = T)
+fig <- plot_ly(dadosGremio, x = ~X, y = score_p, name = 'trace 0', type = 'scatter', mode = 'lines') 
+
+fig <- fig %>% layout(title = "Pontos Normalizados do Grêmio no Brasileirão",
+
+         xaxis = list(title = "Anos"),
+
+         yaxis = list (title = "Tendencia"))
+fig
+```
+
+Pontos do Grêmio no Ranking CBF
+```{r}
+fig <- plot_ly(dadosGremio, x = ~X, y = dadosGremio$PontosCBF, name = 'trace 0', type = 'scatter', mode = 'lines') 
+
+fig <- fig %>% layout(title = "Pontos do Grêmio no Ranking CBF",
+
+         xaxis = list(title = "Anos"),
+
+         yaxis = list (title = "Pontos"))
+fig
+```
+
+Pontos do Grêmio Normalizados no Ranking CBF
+```{r}
+
+score_p = scale(dadosGremio$PontosCBF, center = T)
+fig <- plot_ly(dadosGremio, x = ~X, y = score_p, name = 'trace 0', type = 'scatter', mode = 'lines') 
+
+fig <- fig %>% layout(title = "Pontos do Grêmio Normalizados Ranking CBF",
+
+         xaxis = list(title = "Anos"),
+
+         yaxis = list (title = "Tendencia"))
+fig
+```
+
+
+Lugar do Grêmio no Ranking CBF
+```{r}
+fig <- plot_ly(dadosGremio, x = ~X, y = dadosGremio$RankingCBF, name = 'trace 0', type = 'scatter', mode = 'lines') 
+
+fig <- fig %>% layout(title = "Lugar do Grêmio no Ranking CBF",
+
+         xaxis = list(title = "Anos"),
+
+         yaxis = list (title = "Lugar"))
+fig
+```
+
+Lugar do Grêmio Normalizados Ranking CBF
+```{r}
+
+score_p = scale(dadosGremio$RankingCBF, center = T)
+fig <- plot_ly(dadosGremio, x = ~X, y = score_p, name = 'trace 0', type = 'scatter', mode = 'lines') 
+
+fig <- fig %>% layout(title = "Lugar do Grêmio Normalizados Ranking CBF",
+
+         xaxis = list(title = "Anos"),
+
+         yaxis = list (title = "Tendencia"))
+fig
+```
+
+Titulos No Ano do Grêmio
+```{r}
+
+score_p = scale(dadosGremio$RankingCBF, center = T)
+fig <- plot_ly(dadosGremio, x = ~X, y = dadosGremio$TitulosNoAno, name = 'trace 0', type = 'scatter', mode = 'lines') 
+
+fig <- fig %>% layout(title = "Titulos do Grêmio no Brasileirão",
+
+         xaxis = list(title = "Anos"),
+
+         yaxis = list (title = "Titulos"))
+fig
+```
+
+Coeficiente de Relação:
+Usamos o "cor" em R, por padrão no metodo de Peterson. Ele vai nos retornar uma pontuação sobre a correlação entre os dois dados inseridos nele, por exemplo:
+```{r}
+score_pCBF = scale(dadosGremio$PontosCBF, center = T)
+score_pBR = scale(dadosGremio$PontosBr, center = T)
+
+print(cor(score_pCBF,score_pBR))
+
+```
+Como o esperado notamos que os Pontos da CBF e Pontos do Brasileirão tem uma relação baixa, praticamente Nula.
+
+```{r}
+score_pCBF = scale(dadosGremio$PontosCBF, center = T)
+score_pBR = scale(dadosGremio$PontosBr, center = T)
+
+fig <- plot_ly(dadosGremio, x = ~X, y = ~score_pCBF, name = 'Pontos CBF', type = 'scatter', mode = 'lines') 
+
+fig <- fig %>% add_trace(y = ~score_pBR, name = 'Pontos Brasileirão', mode = 'lines+markers') 
+
+fig <- fig %>% layout(title = "Relação normalizada Pontos CBF x Pontos Brasileirão",
+
+         xaxis = list(title = "Anos"),
+
+         yaxis = list (title = "Pontos"))
+
+fig
+```
+
+Irei normalizar todos as variavéis e usar a partir daqui para facilitar o trabalho:
+```{r}
+score_pCBF = scale(dadosGremio$PontosCBF, center = T)
+score_pBR = scale(dadosGremio$PontosBr, center = T)
+score_Tit = scale(dadosGremio$TitulosNoAno, center = T)
+score_ValorDoTime = scale(dadosGremio$ValorDoTimeEuroMi, center = T)
+print(cor(score_pCBF,score_pBR))
+
+```
+
+### O preço do time afeta?
+
+Será que o preço do elenco afeta o desempenho do time?
+Primeiro a correlação:
+```{r}
+
+
+sprintf("Pontos CBF e valor do time: %s",cor(score_pCBF,score_ValorDoTime))
+sprintf("Pontos Brasileirão e valor do time: %s",cor(score_pBR,score_ValorDoTime))
+sprintf("Titulos e valor do time: %s",cor(score_Tit,score_ValorDoTime))
+
+
+
+```
+
+Resultados interessantes, talvez o valor do time tenha relação com o número de títulos
+```{r}
+score_pCBF = scale(dadosGremio$PontosCBF, center = T)
+score_pBR = scale(dadosGremio$PontosBr, center = T)
+
+fig <- plot_ly(dadosGremio, x = ~X, y = ~score_ValorDoTime, name = 'Valor do time', type = 'scatter', mode = 'lines') 
+
+fig <- fig %>% add_trace(y = ~score_pBR, name = 'Pontos Brasileirão', mode = 'lines+markers') 
+
+fig <- fig %>% add_trace(y = ~score_pCBF, name = 'Pontos CBF', mode = 'lines+markers') 
+
+fig <- fig %>% add_trace(y = score_Tit, name = 'Número de títulos', mode = 'lines+markers') 
+
+fig <- fig %>% layout(title = "Relações",
+
+         xaxis = list(title = "Anos"),
+
+         yaxis = list (title = "Pontos"))
+
+fig
+```
+
+Como o esperado, há uma relação, ainda que não tão forte, entre o preço do elenco do ano e o número de titulos, como achamos com a correlação de Pearson : 0.554542
+
+Ou seja: **O preço do Elenco AFETA o Grêmio**
+
+
+### Política
+
+Será que política Brasileira afeta o Grêmio? Vamos começar com os filiados de alguns partidos desde 2012: PT, PSDB, PL, PCB e MDB, números a partir de Janeiro retirados do: https://www.tse.jus.br/eleitor/estatisticas-de-eleitorado/filiados
+
+```{r}
+PTFilhados <- c(1523955,1550671,1588308,1586357,1589270,1585746,1585434,1589943,1475301,1544322,1607025)
+PSDBFilhados <- c(1352831,1354704,1350434,1348537,1409120,1445992,1455773,1457534,1365550,1374981,1354405)
+PCBFilhados <- c(15914,15579,15274,15138,14848,14824,14751,14680,12922,12784,12649)
+
+
+```
+
+Será que há correlação entre número de filiados desses partidos e o desempenho do Grêmio?
+
+#### PT
+```{r}
+PTFilhados <- scale(PTFilhados, center = T)
+sprintf("Filiados do PT e sua relação com:")
+sprintf("Pontos CBF %s",cor(score_pCBF,PTFilhados))
+sprintf("Pontos Brasileirão %s",cor(score_pBR,PTFilhados))
+sprintf("Titulos : %s",cor(score_Tit,PTFilhados))
+sprintf("Valor do time: %s",cor(score_ValorDoTime,PTFilhados))
+
+
+
+```
+Aparentemente o numero de filiados do PT não tem relação com o Grêmio, o mais perto seria o inverso com o valor do Elenco, porém não chega a 50% de correlação.
+
+#### PSDB
+```{r}
+PSDBFilhados <- scale(PSDBFilhados, center = T)
+sprintf("Filiados do PSDB e sua relação com:")
+sprintf("Pontos CBF %s",cor(score_pCBF,PSDBFilhados))
+sprintf("Pontos Brasileirão %s",cor(score_pBR,PSDBFilhados))
+sprintf("Titulos : %s",cor(score_Tit,PSDBFilhados))
+sprintf("Valor do time: %s",cor(score_ValorDoTime,PSDBFilhados))
+
+
+
+```
+Aparentemente o numero de filiados do PSDB tem uma estranha relação de 73% com o número de titulos, vamos ver o gráfico normalizado:
+
+```{r}
+fig <- plot_ly(dadosGremio, x = ~X, y = score_Tit, name = 'Titulos do ano Normalizado', type = 'scatter', mode = 'lines') 
+
+fig <- fig %>% add_trace(y = PSDBFilhados, name = 'Filiados PSDB normalizado', mode = 'lines+markers')
+
+fig
+```
+
+#### PCB
+```{r}
+PCBFilhados <- scale(PCBFilhados, center = T)
+sprintf("Filiados do PCB e sua relação com:")
+sprintf("Pontos CBF %s",cor(score_pCBF,PCBFilhados))
+sprintf("Pontos Brasileirão %s",cor(score_pBR,PCBFilhados))
+sprintf("Titulos : %s",cor(score_Tit,PCBFilhados))
+sprintf("Valor do time: %s",cor(score_ValorDoTime,PCBFilhados))
+
+
+
+```
+Aparentemente o numero de filiados do PCB não tem relação com o Grêmio, o mais perto seria o inverso com o valor do Elenco assim como o PT, com um pouco mais de 50%, vamos plotar apenas para visualizar.
+
+```{r}
+fig <- plot_ly(dadosGremio, x = ~X, y = score_ValorDoTime, name = 'Valor do Time', type = 'scatter', mode = 'lines') 
+
+fig <- fig %>% add_trace(y = PSDBFilhados, name = 'Filiados PCB normalizado', mode = 'lines+markers')
+
+fig
+```
+
+Conclusão: Aparentemente o Grêmio não é afetado pelos 3 partidos. **Não afeta o Grêmio**
+
+### Alguns dados da Economia afetam?
+
+#### Rendimento real médio mensal per capita nos domicílios com televisão sem acesso a serviço de televisão por assinatura em Reais
+Vamos tentar alguns dados econômicos, a começar com Renda média Mensal, via "Rendimento real médio mensal per capita nos domicílios com televisão sem acesso a serviço de televisão por assinatura em Reais" daqui: https://sidra.ibge.gov.br/tabela/7403
+
+Infelizmente os dados tem que ser a partir de 2016
+```{r}
+rendaPerCapita <- c(976,1033,1065,1121,1121,1106)
+
+dadosGremioRecorte2016 <- dadosGremio[5:10, ]
+
+
+sprintf("Pontos CBF e Renda: %s",cor(dadosGremioRecorte2016$PontosCBF,rendaPerCapita))
+sprintf("Pontos Brasileirão e Renda: %s",cor(dadosGremioRecorte2016$PontosBr,rendaPerCapita))
+sprintf("Titulos e Renda: %s",cor(dadosGremioRecorte2016$TitulosNoAno,rendaPerCapita))
+sprintf("Valor do time e Renda: %s",cor(dadosGremioRecorte2016$ValorDoTimeEuroMi,rendaPerCapita))
+
+
+
+```
+Interessante parece haver relação entre os pontos do Ranking da CBF e a Renda com 79%
+Além do valor do time com 73%, vamos plotar:
+
+```{r}
+
+ 
+fig <- plot_ly(dadosGremioRecorte2016, x = ~X, y = scale(rendaPerCapita, center = T), name = 'Renda per Capita', type = 'scatter', mode = 'lines') 
+
+fig <- fig %>% add_trace(y = scale(dadosGremioRecorte2016$PontosCBF, center = T), name = 'Pontos CBF', mode = 'lines+')
+
+fig <- fig %>% add_trace(y = scale(dadosGremioRecorte2016$ValorDoTimeEuroMi), name = 'Valor do Time', mode = 'lines')
+
+fig
+```
+
+Fantástico, descobrimos que o Rendimento real médio mensal per capita nos domicílios com televisão sem acesso a serviço de televisão por assinatura em Reais **afeta o Grêmio** desde 2016.
+
+
+#### PIB per capita
+https://sidra.ibge.gov.br/tabela/6784#/n1/all/v/9812/p/all/d/v9812%202/l/v,,t+p/resultado
+
+Infelizmente os dados tem que ser a partir de 2016
+```{r}
+rendaPerCapita <- c(976,1033,1065,1121,1121,1106)
+
+dadosGremioRecorte2016 <- dadosGremio[5:10, ]
+
+
+sprintf("Pontos CBF e Renda: %s",cor(dadosGremioRecorte2016$PontosCBF,rendaPerCapita))
+sprintf("Pontos Brasileirão e Renda: %s",cor(dadosGremioRecorte2016$PontosBr,rendaPerCapita))
+sprintf("Titulos e Renda: %s",cor(dadosGremioRecorte2016$TitulosNoAno,rendaPerCapita))
+sprintf("Valor do time e Renda: %s",cor(dadosGremioRecorte2016$ValorDoTimeEuroMi,rendaPerCapita))
+
+
+
+```
+Interessante parece haver relação entre os pontos do Ranking da CBF e a Renda com 79%
+Além do valor do time com 73%, vamos plotar:
+
+```{r}
+
+ 
+fig <- plot_ly(dadosGremioRecorte2016, x = ~X, y = scale(rendaPerCapita, center = T), name = 'Renda per Capita', type = 'scatter', mode = 'lines') 
+
+fig <- fig %>% add_trace(y = scale(dadosGremioRecorte2016$PontosCBF, center = T), name = 'Pontos CBF', mode = 'lines+')
+
+fig <- fig %>% add_trace(y = scale(dadosGremioRecorte2016$ValorDoTimeEuroMi), name = 'Valor do Time', mode = 'lines')
+
+fig
+```
+
+Fantástico, descobrimos que o Rendimento real médio mensal per capita nos domicílios com televisão sem acesso a serviço de televisão por assinatura em Reais **afeta o Grêmio** desde 2016.
+
+
+
+
