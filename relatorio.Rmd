@@ -1,12 +1,28 @@
+
+
 ---
 title: "Afeta o Grêmio?"
 author: "Renan Tomazini"
-date: "2022-10-06"
-output: html_document
+date: "`r Sys.Date()`"
+output:
+  rmdformats::robobook:
+    self_contained: true
+    thumbnails: true
+    lightbox: true
+    gallery: false
 ---
+
+
+
+
+
+
+
 # Mas como isso afeta o Grêmio?
 
-## Introdução
+Por Renan Tomazini
+
+### Introdução
 
 <img src="images\gremio-logo-escudo.png" alt="Escudo do Grêmio" style="width:200px; display: block;margin-left: auto;margin-right: auto;">
 
@@ -21,17 +37,32 @@ O meme se espalhou pela internet, chegando a ser usado por influencers em redes 
 Desde então a pergunta que a internet faz é: Como isso afeta o Grêmio?
 Vou tentar ver algumas estatísticas do clube, como Ranking e Pontos na CBF e no Brasileirão e tentar encontrar algumas relações com acontecimentos importantes do nosso cotidiano. Então esse é o **Mas afeta o Grêmio?**
 
+
+Coeficiente de Relação:
+Usamos o "cor" em R, por padrão no metodo de Pearson Ele vai nos retornar uma pontuação sobre a correlação entre os dois dados inseridos nele.
+
+
+**Esse relatório é apenas uma brincadeira**, não representa um estudo de relação propriamente dito, baseado principalmente em:  https://www.tylervigen.com/spurious-correlations
+Ele serve para meu treinamento de Data Science
+
+
+
 ## Pacotes Requeridos:
 
 ```{r setup, include=FALSE}
 #install.packages('plotly')
 #install.packages('stringr')
 #install.packages('tidyr')
+#install.packages('rmdformats')
 library('plotly')
 library('stringr')
 library('tidyr')
+library('rmdformats')
+
+ 
 ```
 Os pacotes a serem usados são:
+
 plotly
 Para criação de gráficos.
 
@@ -40,6 +71,9 @@ Para trabalhar com as strings presentes no dataset.
 
 tidyr
 Para auxiliar na limpeza e organização das tabelas de dados.
+
+rmdformats
+Para o teme da página
 
 ## Análise {.tabset}
 
@@ -152,7 +186,7 @@ fig
 ```
 
 Coeficiente de Relação:
-Usamos o "cor" em R, por padrão no metodo de Peterson. Ele vai nos retornar uma pontuação sobre a correlação entre os dois dados inseridos nele, por exemplo:
+Usamos o "cor" em R, por padrão no metodo de Pearson Ele vai nos retornar uma pontuação sobre a correlação entre os dois dados inseridos nele, por exemplo:
 ```{r}
 score_pCBF = scale(dadosGremio$PontosCBF, center = T)
 score_pBR = scale(dadosGremio$PontosBr, center = T)
@@ -179,7 +213,7 @@ fig <- fig %>% layout(title = "Relação normalizada Pontos CBF x Pontos Brasile
 fig
 ```
 
-Irei normalizar todos as variavéis e usar a partir daqui para facilitar o trabalho:
+Irei normalizar todos as variavéis e usar a partir daqui para facilitar o trabalho, sempre ultilizarei a correlação "cor(dadoA,dadoB)" para verificar se existe correspondência entre os valores:
 ```{r}
 score_pCBF = scale(dadosGremio$PontosCBF, center = T)
 score_pBR = scale(dadosGremio$PontosBr, center = T)
@@ -307,10 +341,46 @@ Conclusão: Aparentemente o Grêmio não é afetado pelos 3 partidos. **Não afe
 
 ### Alguns dados da Economia afetam?
 
+#### Pib per capita
+Pegaremos dados do PIB per capita daqui: https://sidra.ibge.gov.br/tabela/6784#/n1/all/v/9812/p/all/d/v9812%202/l/v,,t+p/resultado
+
+
+Infelizmente os dados tem que ser a partir de 2016
+```{r}
+dadosGremioAte2019 <- dadosGremio[1:8,]
+pibPerCapita <- c(24278.35,26657.54,28648.74,29466.85,30558.75,31843.95,33593.82,35161.70)
+
+dadosGremioRecorte2016 <- dadosGremio[5:10, ]
+
+
+sprintf("Pontos CBF e PibPerCapita: %s",cor(dadosGremioAte2019$PontosCBF,pibPerCapita))
+sprintf("Pontos Brasileirão e PibPerCapita: %s",cor(dadosGremioAte2019$PontosBr,pibPerCapita))
+sprintf("Titulos e PibPerCapita: %s",cor(dadosGremioAte2019$TitulosNoAno,pibPerCapita))
+sprintf("Valor do time e PibPerCapita: %s",cor(dadosGremioAte2019$ValorDoTimeEuroMi,pibPerCapita))
+
+
+
+```
+Parece haver relação entre o número de titúlos e o PIB per capita
+```{r}
+
+ 
+fig <- plot_ly(dadosGremioAte2019, x = ~X, y = scale(pibPerCapita, center = T), name = 'Renda per Capita', type = 'scatter', mode = 'lines') 
+
+fig <- fig %>% add_trace(y = scale(dadosGremioAte2019$TitulosNoAno, center = T), name = 'Títulos do Grêmio', mode = 'lines+')
+
+
+
+fig
+```
+
+Descobrimos assim que o Pib per capita **afetou o número de títulos** do grêmio!
+
+
 #### Rendimento real médio mensal per capita nos domicílios com televisão sem acesso a serviço de televisão por assinatura em Reais
+
 Vamos tentar alguns dados econômicos, a começar com Renda média Mensal, via "Rendimento real médio mensal per capita nos domicílios com televisão sem acesso a serviço de televisão por assinatura em Reais" daqui: https://sidra.ibge.gov.br/tabela/7403
 
-Infelizmente os dados tem que ser a partir de 2016
 ```{r}
 rendaPerCapita <- c(976,1033,1065,1121,1121,1106)
 
@@ -342,42 +412,287 @@ fig
 
 Fantástico, descobrimos que o Rendimento real médio mensal per capita nos domicílios com televisão sem acesso a serviço de televisão por assinatura em Reais **afeta o Grêmio** desde 2016.
 
+#### Taxa de desemprego em Janeiro
 
-#### PIB per capita
-https://sidra.ibge.gov.br/tabela/6784#/n1/all/v/9812/p/all/d/v9812%202/l/v,,t+p/resultado
-
-Infelizmente os dados tem que ser a partir de 2016
+Será que a taxa de desemprego de Janeiro afeta o Grêmio?
+Dados de: https://www.ibge.gov.br/estatisticas/sociais/trabalho/9173-pesquisa-nacional-por-amostra-de-domicilios-continua-trimestral.html?=&t=series-historicas&utm_source=landing&utm_medium=explica&utm_campaign=desemprego
 ```{r}
-rendaPerCapita <- c(976,1033,1065,1121,1121,1106)
-
-dadosGremioRecorte2016 <- dadosGremio[5:10, ]
+Desemprego <- c(8,7.3,7.2,6.9,11.1,13.9,13.2,12.8,12.4,14.9,11.1)
 
 
-sprintf("Pontos CBF e Renda: %s",cor(dadosGremioRecorte2016$PontosCBF,rendaPerCapita))
-sprintf("Pontos Brasileirão e Renda: %s",cor(dadosGremioRecorte2016$PontosBr,rendaPerCapita))
-sprintf("Titulos e Renda: %s",cor(dadosGremioRecorte2016$TitulosNoAno,rendaPerCapita))
-sprintf("Valor do time e Renda: %s",cor(dadosGremioRecorte2016$ValorDoTimeEuroMi,rendaPerCapita))
+
+
+sprintf("Pontos CBF e Desemprego: %s",cor(dadosGremio$PontosCBF,Desemprego))
+sprintf("Pontos Brasileirão e Desemprego: %s",cor(dadosGremio$PontosBr,Desemprego))
+sprintf("Titulos e Desemprego: %s",cor(dadosGremio$TitulosNoAno,Desemprego))
+sprintf("Valor do time e Desemprego: %s",cor(dadosGremio$ValorDoTimeEuroMi,Desemprego))
 
 
 
 ```
-Interessante parece haver relação entre os pontos do Ranking da CBF e a Renda com 79%
-Além do valor do time com 73%, vamos plotar:
+Será que o Número de Titulos e taxa de Desemprego tem relação como mostra Pearson? Vamos plotar:
 
 ```{r}
 
  
-fig <- plot_ly(dadosGremioRecorte2016, x = ~X, y = scale(rendaPerCapita, center = T), name = 'Renda per Capita', type = 'scatter', mode = 'lines') 
+fig <- plot_ly(dadosGremio, x = ~X, y = scale(Desemprego, center = T), name = 'Desemprego', type = 'scatter', mode = 'lines') 
 
-fig <- fig %>% add_trace(y = scale(dadosGremioRecorte2016$PontosCBF, center = T), name = 'Pontos CBF', mode = 'lines+')
+fig <- fig %>% add_trace(y = scale(dadosGremio$TitulosNoAno, center = T), name = 'Títulos no ano', mode = 'lines+')
 
-fig <- fig %>% add_trace(y = scale(dadosGremioRecorte2016$ValorDoTimeEuroMi), name = 'Valor do Time', mode = 'lines')
 
 fig
 ```
 
-Fantástico, descobrimos que o Rendimento real médio mensal per capita nos domicílios com televisão sem acesso a serviço de televisão por assinatura em Reais **afeta o Grêmio** desde 2016.
+Ao que parece antes de 2019 tinhamos uma pequena correlação entre ambos dados, ou seja **A taxa de desemprego afetava o Grêmio**
+
+
+### Entretenimento
+
+#### Anitta
+Será que os Singles da Anitta influênciam o Grêmio?
+
+```{r}
+#Número de Singles da Anitta
+nAlbuns <- c(2,3,4,3,3,4,8,16,4,9,8)
+
+
+sprintf("Pontos CBF e álbuns: %s",cor(dadosGremio$PontosCBF,nAlbuns))
+sprintf("Pontos Brasileirão e álbuns: %s",cor(dadosGremio$PontosBr,nAlbuns))
+sprintf("Titulos e álbuns: %s",cor(dadosGremio$TitulosNoAno,nAlbuns))
+sprintf("Valor do time e álbuns: %s",cor(dadosGremio$ValorDoTimeEuroMi,nAlbuns))
 
 
 
+```
+O número de Singles de Anitta não parecem ter relação com o Grêmio, ou seja **Anitta não afeta o Grêmio**
+
+
+
+#### Ghost
+Será que os Álbuns da banda Ghost influênciam o Grêmio?
+
+```{r}
+#Número de Álbuns da banda Ghost
+nAlbuns <- c(0,1,0,0,1,0,0,1,0,0,1)
+
+
+sprintf("Pontos CBF e álbuns: %s",cor(dadosGremio$PontosCBF,nAlbuns))
+sprintf("Pontos Brasileirão e álbuns: %s",cor(dadosGremio$PontosBr,nAlbuns))
+sprintf("Titulos e álbuns: %s",cor(dadosGremio$TitulosNoAno,nAlbuns))
+sprintf("Valor do time e álbuns: %s",cor(dadosGremio$ValorDoTimeEuroMi,nAlbuns))
+
+
+
+```
+O número de álbum não parecem ter relação com o Grêmio, ou seja **A banda Ghost não afeta o Grêmio**
+
+#### Rating de games por ano
+Temos aqui os principais Ratings de games por ano, será que a média desses games afeta o Grêmio?
+```{r}
+dadosGames <- read.csv("data/imdb_video_game_rating.csv")
+
+dadosGames <- dadosGames[which(dadosGames$year>=2012 & dadosGames$year != "I)"& dadosGames$year != "IV)"& dadosGames$year != "II)"& dadosGames$year != "III)"& dadosGames$year != "Video"),]
+#head(dadosGames)
+
+#unique(dadosGames$year)
+
+ratingGame <- aggregate(dadosGames$rating, list(dadosGames$year), FUN=mean) 
+
+sprintf("Pontos CBF e Rating de games: %s",cor(dadosGremio$PontosCBF,ratingGame$x))
+sprintf("Pontos Brasileirão e Rating de games: %s",cor(dadosGremio$PontosBr,ratingGame$x))
+sprintf("Titulos e Rating de games: %s",cor(dadosGremio$TitulosNoAno,ratingGame$x))
+sprintf("Valor do time e Rating de games: %s",cor(dadosGremio$ValorDoTimeEuroMi,ratingGame$x))
+
+
+
+```
+Não parece ter afetar o Grêmio, mas vejo o proximo Plot:
+
+```{r}
+
+ 
+fig <- plot_ly(dadosGremio, x = ~X, y = scale(ratingGame$x, center = T), name = 'Média de Rating por ano', type = 'scatter', mode = 'lines') 
+
+fig <- fig %>% add_trace(y = scale(dadosGremio$ValorDoTimeEuroMi, center = T), name = 'Títulos do Grêmio', mode = 'lines+')
+
+
+
+fig
+```
+
+
+#### Controle dos Browser de mercado
+Será que os navegadores de internet e sua briga afeta o Grêmio?
+```{r}
+dadosBroswer <- read.csv("data/browser.csv")
+
+dadosBroswer <- dadosBroswer[2:12,1:6]
+```
+
+
+##### Chrome
+
+Vamos ver com a fatia de mercado do Chrome
+```{r}
+
+
+
+sprintf("Pontos CBF e Chrome: %s",cor(dadosGremio$PontosCBF,dadosBroswer$Chrome))
+sprintf("Pontos Brasileirão e Chrome: %s",cor(dadosGremio$PontosBr,dadosBroswer$Chrome))
+sprintf("Titulos e Chrome: %s",cor(dadosGremio$TitulosNoAno,dadosBroswer$Chrome))
+sprintf("Valor do time e Chrome: %s",cor(dadosGremio$ValorDoTimeEuroMi,dadosBroswer$Chrome))
+
+```
+
+
+Será que os Pontos do Ranking CBF tem relação com a fatia de mercado do Chrome?
+
+```{r}
+
+ 
+fig <- plot_ly(dadosGremio, x = ~X, y = scale(dadosBroswer$Chrome, center = T), name = 'Fatia de mercado do Chrome', type = 'scatter', mode = 'lines') 
+
+fig <- fig %>% add_trace(y = scale(dadosGremio$PontosCBF, center = T), name = 'Pontos do Grêmio na CBF', mode = 'lines+')
+
+
+
+fig
+```
+Parece que a fatia de mercado do Chrome **afeta o Grêmio**
+
+##### IE
+
+Vamos ver com a fatia de mercado do IE
+```{r}
+
+
+
+sprintf("Pontos CBF e Chrome: %s",cor(dadosGremio$PontosCBF,dadosBroswer$IE))
+sprintf("Pontos Brasileirão e Chrome: %s",cor(dadosGremio$PontosBr,dadosBroswer$IE))
+sprintf("Titulos e Chrome: %s",cor(dadosGremio$TitulosNoAno,dadosBroswer$IE))
+sprintf("Valor do time e Chrome: %s",cor(dadosGremio$ValorDoTimeEuroMi,dadosBroswer$IE))
+
+```
+
+
+Será que os Titulos do ano tem relação com a fatia de mercado do IE?
+
+```{r}
+
+ 
+fig <- plot_ly(dadosGremio, x = ~X, y = scale(dadosBroswer$Chrome, center = T), name = 'Fatia de mercado do IE', type = 'scatter', mode = 'lines') 
+
+fig <- fig %>% add_trace(y = scale(dadosGremio$TitulosNoAno, center = T), name = 'Títulos do ano', mode = 'lines+')
+
+
+
+fig
+```
+Parece que a fatia de mercado do IE **afeta os Títulos do Grêmio**
+
+##### Firefox
+
+Vamos ver com a fatia de mercado do Firefox
+```{r}
+
+
+
+sprintf("Pontos CBF e Chrome: %s",cor(dadosGremio$PontosCBF,dadosBroswer$Firefox))
+sprintf("Pontos Brasileirão e Chrome: %s",cor(dadosGremio$PontosBr,dadosBroswer$Firefox))
+sprintf("Titulos e Chrome: %s",cor(dadosGremio$TitulosNoAno,dadosBroswer$Firefox))
+sprintf("Valor do time e Chrome: %s",cor(dadosGremio$ValorDoTimeEuroMi,dadosBroswer$Firefox))
+
+```
+
+Parece que a fatia de mercado do Firefox **não afeta o Grêmio**
+
+##### Safari
+
+Vamos ver com a fatia de mercado do Safari
+```{r}
+
+
+
+sprintf("Pontos CBF e Chrome: %s",cor(dadosGremio$PontosCBF,dadosBroswer$Safari))
+sprintf("Pontos Brasileirão e Chrome: %s",cor(dadosGremio$PontosBr,dadosBroswer$Safari))
+sprintf("Titulos e Chrome: %s",cor(dadosGremio$TitulosNoAno,dadosBroswer$Safari))
+sprintf("Valor do time e Chrome: %s",cor(dadosGremio$ValorDoTimeEuroMi,dadosBroswer$Safari))
+
+```
+
+
+Parece que a fatia de mercado do Safari **não afeta o Grêmio**
+
+
+
+### Bônus
+Algumas correlações são estranhas e eu descobri por acaso, aqui algumas delas: 
+
+#### Filiados do PCB e pontos do Vasco
+
+Ao que parece há uma relação muito grande entre a queda do crescimento (não confundir com numero total) de filiados do PCB e dos pontos do Vasco no Raking CBF
+```{r}
+vasco <- "Vasco da Gama"
+pontos <- c(14426,12132,11928,10040,9322,9360,9242,8828,8206)
+
+PCB <- "PCB"
+eleitoresFilhadosPCB <- c(15140,14852,14830,14830,14682,12921,12784, 12651, 12530)
+
+vascotab <- data.frame(vasco, pontos)
+pcbtab <- data.frame(PCB,eleitoresFilhadosPCB)
+
+
+anos = c(2014,2015,2016,2017,2018,2019,2020, 2021, 2022)
+
+score_v = scale(vascotab$pontos, center = T)
+score_pc = scale(pcbtab$eleitoresFilhados, center = T)
+df <- data.frame("index" = anos, "pontos" = score_v, "eleitoresFilhados" = score_pc,"eleitoresFilhadosPCB" = score_pc)
+
+
+
+
+fig <- plot_ly(df, type = 'scatter', mode = 'lines')%>%
+  add_trace(x = ~anos, y = ~pontos, name = 'Pontos do vasco',line = list(color = 'blue'))%>%
+  add_trace(x = ~anos, y = ~eleitoresFilhadosPCB, name = 'Filiados ao PCB',line = list(color = 'red'))
+
+fig
+
+
+
+
+
+```
+
+
+#### Fatias de Firefox no mercado e pontos do Vasco
+
+Ao que parece há uma relação muito grande também entre os Pontos do Vasco no Ranking da CBF e a fatia de mercado do Firefox
+```{r}
+vasco <- "Vasco da Gama"
+pontos <- c(14426,12132,11928,10040,9322,9360,9242)
+
+vascotab <- data.frame(vasco, pontos)
+anos = c(2014,2015,2016,2017,2018,2019,2020)
+score_v = scale(vascotab$pontos, center = T)
+
+dadosBroswerFire <- dadosBroswer[3:9,]
+
+#head(dadosBroswerFire)
+
+
+fig <- plot_ly(vascotab, type = 'scatter', mode = 'lines')%>%
+  add_trace(x = ~anos, y = scale(pontos, center = T), name = 'Pontos do vasco',line = list(color = 'blue'))%>%
+  add_trace(x = ~anos, y = scale(dadosBroswerFire$Firefox, center = T) , name = 'Fatia de Mercado do Firefox',line = list(color = 'red'))
+
+fig
+
+
+
+
+
+```
+
+
+### Conclusões
+Sim, existem coisas que **afetam o Grêmio**, porém é necessário garimpar os dados para descobrir os códigos por trás dos números que afetam o Grêmio. 
 

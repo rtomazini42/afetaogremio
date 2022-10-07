@@ -1,0 +1,11 @@
+name: Publish Document
+title:
+username:
+account: rpubs
+server: rpubs.com
+hostUrl: rpubs.com
+appId: https://api.rpubs.com/api/v1/document/952700/489286f8077a4b35a6fbd684fb7129c0
+bundleId: https://api.rpubs.com/api/v1/document/952700/489286f8077a4b35a6fbd684fb7129c0
+url: http://rpubs.com/rtomazini/952700
+when: 1665114901.47571
+lastSyncTime: 1665114901.47572
